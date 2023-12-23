@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:gravity="center"
+    android:orientation="vertical"
+    tools:context=".GameFinish">
+
+    <TextView
+        android:id="@+id/gamefinish"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Clear"
+        android:fontFamily="@font/my_font"
+        android:layout_marginTop="24dp"
+        android:textColor="@color/skyblue"
+        android:textSize="28sp"/>
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_margin="20dp">
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_marginRight="20dp"
+            android:gravity="center">
+            <TextView
+                android:id="@+id/finish_game_title_level"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Difficulty"
+                android:textColor="@color/skyblue"
+                android:layout_marginBottom="10dp"
+                android:textSize="24sp"/>
+
+            <TextView
+                android:id="@+id/finish_game_level"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Intermediate"
+                android:textColor="@color/skyblue"
+                android:textSize="24sp"/>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_marginLeft="20dp"
+            android:gravity="center">
+            <TextView
+                android:id="@+id/finish_game_title_time"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Time"
+                android:textColor="@color/skyblue"
+                android:layout_marginBottom="10dp"
+                android:textSize="24sp"/>
+
+            <TextView
+                android:id="@+id/finish_game_time"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="00:00"
+                android:textColor="@color/skyblue"
+                android:textSize="24sp"/>
+        </LinearLayout>
+    </LinearLayout>
+
+    <Button
+        android:id="@+id/go_main"
+        android:layout_width="200dp"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="24dp"
+        android:text="Go Back"
+        android:textAllCaps="false"
+        android:padding="15dp"
+        android:textSize="20sp"
+        android:background="@drawable/shape"
+        android:backgroundTint="@color/skyblue"
+        android:textColor="@color/white" />
+</LinearLayout>
