@@ -9,6 +9,9 @@ data class MineSweeperEntity(
     @PrimaryKey(autoGenerate = true) // 각 게임 세션을 식별하는 유일한 키
     val id: Int,
 
+    @ColumnInfo(name = "difficulty") // 게임 난이도
+    val difficulty: Int,
+
     @ColumnInfo(name = "elapsedTime") // 진행된 시간(밀리초)
     val elapsedTime: Long,
 

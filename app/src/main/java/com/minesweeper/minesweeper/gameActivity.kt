@@ -106,6 +106,8 @@ class gameActivity : AppCompatActivity() {
 
     private var overFlagCount = 0
 
+    private val currentIndex = 0
+
     @SuppressLint("MissingInflatedId", "ClickableViewAccessibility")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -356,6 +358,7 @@ class gameActivity : AppCompatActivity() {
                 apply()
             }
 
+            endGame()
             setKeepGameCalled(false)
             isGameOver = false
         } else {
@@ -814,6 +817,8 @@ class gameActivity : AppCompatActivity() {
     private fun finishDialog() {
         isGameOver = true
 
+        clearGame()
+
         val intent = Intent()
         intent.putExtra("gameOver", true)
         setResult(Activity.RESULT_OK, intent)
@@ -900,6 +905,27 @@ class gameActivity : AppCompatActivity() {
         mineLeft.text = newCount.toString()
     }
 
+    private fun endGame() {
+        val sharedPref = getSharedPreferences("gameState", Context.MODE_PRIVATE)
+        val gameCount = sharedPref.getInt("gameCount$currentIndex", 0) + 1
+        sharedPref.edit().putInt("gameCount$currentIndex", gameCount).apply()
+    }
+
+    private fun clearGame() {
+        val sharedPref = getSharedPreferences("gameState", Context.MODE_PRIVATE)
+        val gameClearCount = sharedPref.getInt("gameClearCount$currentIndex", 0) + 1
+        sharedPref.edit().putInt("gameClearCount$currentIndex", gameClearCount).apply()
+
+        val elapsedTime = SystemClock.elapsedRealtime() - chronometer.base
+        val bestTime = sharedPref.getLong("bestTime$currentIndex", Long.MAX_VALUE)
+
+        if (elapsedTime < bestTime) {
+            sharedPref.edit().putLong("bestTime$currentIndex", elapsedTime).apply()
+        }
+        val totalTime = sharedPref.getLong("totalTime$currentIndex", 0)
+        sharedPref.edit().putLong("totalTime$currentIndex", totalTime + elapsedTime).apply()
+    }
+
     private suspend fun saveGameState() {
         val cellFlagged = Array(rowCount) { BooleanArray(columnCount) }
         val cellMineCountNearby = Array(rowCount) { IntArray(columnCount) }
@@ -922,6 +948,7 @@ class gameActivity : AppCompatActivity() {
 
         val gameStatus = MineSweeperEntity(
             id = 1, // Assuming only one game is saved at a time.
+            difficulty = 1,
             elapsedTime = SystemClock.elapsedRealtime() - chronometer.base,
             mineCount = mineLeft.text.toString().toInt(),
             nonMineButtonClickedCount = nonMineButtonClickedCount,

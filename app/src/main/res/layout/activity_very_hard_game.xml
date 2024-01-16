@@ -67,7 +67,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
-                    android:columnCount="25"
+                    android:columnCount="24"
                     android:rowCount="39">
                 </GridLayout>
             </FrameLayout>

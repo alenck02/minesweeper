@@ -24,7 +24,7 @@
             android:id="@+id/limit_mine_left"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="130"
+            android:text="150"
             android:textColor="@color/black"
             android:textSize="24sp"
             android:textStyle="bold" />
@@ -67,7 +67,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
-                    android:columnCount="18"
+                    android:columnCount="20"
                     android:rowCount="30">
                 </GridLayout>
             </FrameLayout>

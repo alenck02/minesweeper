@@ -8,6 +8,7 @@ import android.graphics.Color
 import android.os.Bundle
 import android.view.View
 import android.widget.Button
+import android.widget.ImageButton
 import android.widget.ProgressBar
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
@@ -29,6 +30,7 @@ class MainActivity : AppCompatActivity() {
         startBtn = findViewById(R.id.gameStart)
         restartBtn = findViewById(R.id.gameRestart)
         progressBar = findViewById(R.id.progress_bar)
+        val chartBtn: ImageButton = findViewById(R.id.chart)
 
         val prefs = getPreferences(Context.MODE_PRIVATE)
         currentDifficultyId = prefs.getInt("currentDifficultyId", 1) // 기본 난이도를 쉬움으로 설정
@@ -56,6 +58,11 @@ class MainActivity : AppCompatActivity() {
 
         startBtn.setOnClickListener {
             startDialog()
+        }
+
+        chartBtn.setOnClickListener {
+            val intent = Intent(this, statisticsActivity::class.java)
+            startActivity(intent)
         }
     }
 
