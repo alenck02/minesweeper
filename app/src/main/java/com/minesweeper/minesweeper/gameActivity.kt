@@ -53,20 +53,15 @@ class gameActivity : AppCompatActivity() {
     private val dx = intArrayOf(-1, -1, -1, 0, 0, 1, 1, 1)
     private val dy = intArrayOf(-1, 0, 1, -1, 1, -1, 0, 1)
 
-    // 첫 번째 버튼의 좌표를 저장할 변수 추가
     private var firstButtonRow = -1
     private var firstButtonColumn = -1
 
-    // 변수 추가: 지뢰가 아닌 버튼 클릭 횟수
     private var nonMineButtonClickedCount = 0
 
-    // 변수 추가: 지뢰가 아닌 버튼 총 개수
     private var nonMineButtonCount = 0
 
-    // 게임 보드 내 각 셀을 방문한 여부를 저장하는 배열
     private var visited = Array(rowCount) { BooleanArray(columnCount) }
 
-    // ScaleGestureDetector를 정의합니다.
     private lateinit var scaleGestureDetector: ScaleGestureDetector
     private var scaleFactor = 1.0f
     private val MIN_SCALE_FACTOR = 0.7f
@@ -77,11 +72,11 @@ class gameActivity : AppCompatActivity() {
     private var translateX = 0f
     private var translateY = 0f
 
-    private var lastTouchX = 0f   // 마지막 터치 X 좌표 저장 변수 추가
-    private var lastTouchY = 0f   // 마지막 터치 Y 좌표 저장 변수 추가
-    private var isDragging = false   // 드래그 중인지 여부를 나타내는 변수 추가
+    private var lastTouchX = 0f
+    private var lastTouchY = 0f
+    private var isDragging = false
 
-    var isGameOver = false  // 게임 오버 상태 저장 변수
+    var isGameOver = false
     private lateinit var myScaleListener: MyScaleListener
 
     private var downTime: Long = 0
@@ -121,23 +116,19 @@ class gameActivity : AppCompatActivity() {
         flagButton = findViewById(R.id.easy_btn_flag)
         mineLeft = findViewById(R.id.easy_mine_left)
 
-        // visited 배열 초기화
         visited = Array(rowCount) { BooleanArray(columnCount) }
 
-        // ScaleGestureDetector를 초기화합니다.
         scaleGestureDetector = ScaleGestureDetector(this, MyScaleListener().also { myScaleListener = it })
 
         scaleFactor = 1.0f
 
         createGridLayout()
 
-        // FrameLayout의 크기 조정
         val layoutParams = frameLayout.layoutParams
         layoutParams.width = (columnCount * 120 * scaleFactor).toInt()
         layoutParams.height = (rowCount * 120 * scaleFactor).toInt()
         frameLayout.layoutParams = layoutParams
 
-        // 게임 시작 시 모든 버튼 수를 nonMineButtonCount 변수에 저장
         nonMineButtonClickedCount = 0
         nonMineButtonCount = rowCount * columnCount - mineCount
 
@@ -155,7 +146,6 @@ class gameActivity : AppCompatActivity() {
             }
         }
 
-        // 버튼을 생성할 때 첫 번째 버튼의 좌표를 저장
         for (row in 0 until rowCount) {
             for (column in 0 until columnCount) {
                 val cellButton = gridLayout.getChildAt(row * columnCount + column) as Button
@@ -164,29 +154,26 @@ class gameActivity : AppCompatActivity() {
                     if (!isGameOver && !isDragging && !myScaleListener.isScaling) {
                         if (cellButton.text.isNullOrEmpty() && !cellButton.isSelected) {
                             showVibrator()
-                            // 0이나 텍스트가 비어 있지 않은 셀에는 깃발을 설치하지 않음
                             cellButton.isSelected = true
                             val vectorDrawable = ResourcesCompat.getDrawable(resources, R.drawable.ic_flag, null)
                             val shapeDrawable = ResourcesCompat.getDrawable(resources, R.drawable.cell_open, null)
                             val layerDrawable = LayerDrawable(arrayOf(shapeDrawable, vectorDrawable))
 
                             cellButton.background = layerDrawable
-                            updateMineLeftCount(-1) // 지뢰 갯수 갱신
+                            updateMineLeftCount(-1)
                         } else if (cellButton.text.isNullOrEmpty() && cellButton.isSelected) {
                             showVibrator()
-                            // 이미 깃발이 설치된 셀에서 깃발을 다시 누르면 깃발 제거
                             cellButton.isSelected = false
                             cellButton.setBackgroundResource(R.drawable.cell_close)
-                            updateMineLeftCount(1) // 지뢰 갯수 갱신
+                            updateMineLeftCount(1)
                             visited[row][column] = false
                         }
                     }
-                    true  // 롱 클릭 이벤트 소비, 추가적인 클릭 이벤트 발생 방지.
+                    true
                 }
 
                 cellButton.setOnTouchListener { v, event ->
                     if (event.pointerCount > 1) {
-                        // ScaleGestureDetector에 터치 이벤트 전달하여 처리합니다.
                         scaleGestureDetector.onTouchEvent(event)
                     }
 
@@ -198,13 +185,13 @@ class gameActivity : AppCompatActivity() {
                         scrollView.requestDisallowInterceptTouchEvent(true)
                         when (event.actionMasked) {
                             MotionEvent.ACTION_DOWN -> {
-                                lastX = x   // X 좌표 저장
-                                lastY = y   // Y 좌표 저장
-                                isDragging = false   // 드래그 상태 초기화
+                                lastX = x
+                                lastY = y
+                                isDragging = false
                                 isLongClicked = false
 
-                                downTime = System.currentTimeMillis()  // 롱 클릭 감지를 위한 다운 타임 기록
-                                scaleGestureDetector.isQuickScaleEnabled = false // 핀치 줌 비활성화
+                                downTime = System.currentTimeMillis()
+                                scaleGestureDetector.isQuickScaleEnabled = false
                             }
                             MotionEvent.ACTION_MOVE -> {
                                 val distanceMovedSq = (x - lastX)*(x - lastX) + (y - lastY)*(y - lastY)
@@ -214,30 +201,27 @@ class gameActivity : AppCompatActivity() {
                                 }
 
                                 if (isDragging) {
-                                    val deltaX= event.x - lastX * scaleFactor   // X 좌표 변위 계산
-                                    val deltaY= event.y - lastY * scaleFactor   // Y 좌표 변위 계산
+                                    val deltaX= event.x - lastX * scaleFactor
+                                    val deltaY= event.y - lastY * scaleFactor
 
                                     translateX += deltaX * scaleFactor
                                     translateY += deltaY * scaleFactor
 
-                                    // Update the last touch position before applying the translation limit.
-                                    lastTouchX = event.x     // 마지막 터치한 위치 업데이트
-                                    lastTouchY = event.y     // 마지막 터치한 위치 업데이트
+                                    lastTouchX = event.x
+                                    lastTouchY = event.y
 
-                                    // Limit the translation within the specified range
                                     translateX = translateX.coerceIn(-(columnCount * 120 * scaleFactor) / 2, (columnCount * 120 * scaleFactor) / 2)
                                     translateY = translateY.coerceIn(-(rowCount * 120 * scaleFactor) / 2, (rowCount * 120 * scaleFactor) / 2)
 
-                                    // Apply translation to the gridLayout after limiting it.
                                     gridLayout.translationX = translateX
                                     gridLayout.translationY = translateY
 
-                                    return@setOnTouchListener true   // 이벤트 소비하여 스크롤 동작 방지
+                                    return@setOnTouchListener true
                                 }
                             }
                             MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> {
 
-                                upTime = System.currentTimeMillis()  // 롱 클릭 감지를 위한 업 타임 기록
+                                upTime = System.currentTimeMillis()
 
                                 if (!isGameOver && !isDragging && upTime - downTime > LONG_CLICK_DURATION_MS && !myScaleListener.isScaling) { }
                                 else if (!isGameOver && !isDragging && !myScaleListener.isScaling && (System.currentTimeMillis() - lastScaleTime > 300)) {
@@ -245,7 +229,6 @@ class gameActivity : AppCompatActivity() {
                                     lifecycleScope.launch {
                                         if (firstButtonRow == -1 && firstButtonColumn == -1) {
 
-                                            // 첫 번째 버튼을 누른 경우 좌표 저장
                                             firstButtonRow = row
                                             firstButtonColumn = column
 
@@ -271,9 +254,9 @@ class gameActivity : AppCompatActivity() {
                                     }
                                 }
 
-                                isDragging = false   // 드래그 종료 상태로 변경
+                                isDragging = false
                                 isLongClicked = false
-                                scaleGestureDetector.isQuickScaleEnabled = true // 핀치 줌 활성화
+                                scaleGestureDetector.isQuickScaleEnabled = true
                             }
                         }
                     }
@@ -297,40 +280,35 @@ class gameActivity : AppCompatActivity() {
 
         scrollView.setOnTouchListener { _, event ->
             if (event.pointerCount > 1) {
-                // Handle touch events for dragging and pinch-to-zoom
                 scaleGestureDetector.onTouchEvent(event)
             }
 
             when (event.actionMasked) {
                 MotionEvent.ACTION_DOWN -> {
-                    // Handle dragging
                     lastX = event.x
                     lastY = event.y
                     isDragging = true
-                    scaleGestureDetector.isQuickScaleEnabled = false // 핀치 줌 비활성화
+                    scaleGestureDetector.isQuickScaleEnabled = false
                 }
                 MotionEvent.ACTION_MOVE -> {
-                    // Calculate translation based on touch movement
                     val deltaX = event.x - lastX
                     val deltaY = event.y - lastY
                     translateX += deltaX
                     translateY += deltaY
 
-                    // Apply translation to the gridLayout
                     gridLayout.translationX = translateX
                     gridLayout.translationY = translateY
 
                     lastX = event.x
                     lastY = event.y
 
-                    // Limit the translation within the specified range
                     translateX = translateX.coerceIn(-(columnCount * 120 * scaleFactor) / 2, (columnCount * 120 * scaleFactor) / 2)
                     translateY = translateY.coerceIn(-(rowCount * 120 * scaleFactor) / 2, (rowCount * 120 * scaleFactor) / 2)
 
                 }
                 MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> {
                     isDragging = false
-                    scaleGestureDetector.isQuickScaleEnabled = true // 핀치 줌 활성화
+                    scaleGestureDetector.isQuickScaleEnabled = true
                 }
             }
             true
@@ -380,17 +358,16 @@ class gameActivity : AppCompatActivity() {
         return super.dispatchTouchEvent(event)
     }
 
-    // 확대/축소를 감지하는 ScaleGestureDetector의 리스너를 구현합니다.
     inner class MyScaleListener : ScaleGestureDetector.SimpleOnScaleGestureListener() {
-        var isScaling = false  // 핀치 줌 중임을 나타내는 플래그 변수
+        var isScaling = false
 
         override fun onScaleBegin(detector: ScaleGestureDetector): Boolean {
-            isScaling = true  // 핀치 줌 시작 시 플래그 값을 참으로 설정합니다.
+            isScaling = true
             return super.onScaleBegin(detector)
         }
 
         override fun onScaleEnd(detector: ScaleGestureDetector) {
-            isScaling = false  // 핀치 줌 종료 시 플래그 값을 거짓으로 설정합니다.
+            isScaling = false
             lastScaleTime = System.currentTimeMillis()
             super.onScaleEnd(detector)
         }
@@ -406,7 +383,6 @@ class gameActivity : AppCompatActivity() {
                 scaleFactor *= factor
             }
 
-            // 핀치 줌 동작 중일 때는 UI 업데이트 최소화
             if (isScaling) {
                 gridLayout.scaleX = scaleFactor
                 gridLayout.scaleY = scaleFactor
@@ -419,11 +395,9 @@ class gameActivity : AppCompatActivity() {
     }
 
     private fun updateLayout() {
-        // 지도 크기 업데이트
         gridLayout.scaleX = scaleFactor
         gridLayout.scaleY = scaleFactor
 
-        // 버튼 크기 업데이트 (여기서 gridLayout은 부모 레이아웃인 GridLayout을 가리킵니다)
         for (row in 0 until rowCount) {
             for (column in 0 until columnCount) {
                 val cellButton = gridLayout.getChildAt(row * columnCount + column) as Button
@@ -433,7 +407,6 @@ class gameActivity : AppCompatActivity() {
             }
         }
 
-        // FrameLayout의 크기 조정
         val layoutParams = frameLayout.layoutParams
         layoutParams.width = (columnCount * 120 * scaleFactor).toInt()
         layoutParams.height = (rowCount * 120 * scaleFactor).toInt()
@@ -447,8 +420,8 @@ class gameActivity : AppCompatActivity() {
                 val layoutParams = GridLayout.LayoutParams().apply {
                     width = (120 * scaleFactor).toInt()
                     height = (120 * scaleFactor).toInt()
-                    rowSpec = GridLayout.spec(row, 1f)  // 올바른 레이아웃 파라미터 설정
-                    columnSpec = GridLayout.spec(column, 1f)  // 올바른 레이아웃 파라미터 설정
+                    rowSpec = GridLayout.spec(row, 1f)
+                    columnSpec = GridLayout.spec(column, 1f)
                 }
                 cellButton.layoutParams = layoutParams
                 cellButton.setTextSize(TypedValue.COMPLEX_UNIT_PX, 30f * scaleFactor)
@@ -498,11 +471,9 @@ class gameActivity : AppCompatActivity() {
                 }
 
                 if (nonMineButtonClickedCount == nonMineButtonCount) {
-                    // 모든 지뢰가 아닌 버튼이 클릭되었을 때 게임 종료
                     finishDialog()
                 }
 
-                // 주변 셀의 깃발 개수가 실제 지뢰 개수 이상인 경우에만 주변 셀을 엽니다.
                 val flagCount = getAdjacentFlagCount(row, column)
                 if (flagCount >= adjacentMineCount && visited[row][column]) {
                     openAdjacentCells(row, column)
@@ -512,31 +483,27 @@ class gameActivity : AppCompatActivity() {
                     openAdjacentCells(row, column)
                 }
 
-                // 클릭한 셀을 방문했음을 표시
                 visited[row][column] = true
             }
         } else {
             if (cellButton.text.isNullOrEmpty() && !cellButton.isSelected) {
-                // 0이나 텍스트가 비어 있지 않은 셀에는 깃발을 설치하지 않음
                 cellButton.isSelected = true
                 val vectorDrawable = ResourcesCompat.getDrawable(resources, R.drawable.ic_flag, null)
                 val shapeDrawable = ResourcesCompat.getDrawable(resources, R.drawable.cell_open, null)
                 val layerDrawable = LayerDrawable(arrayOf(shapeDrawable, vectorDrawable))
 
                 cellButton.background = layerDrawable
-                updateMineLeftCount(-1) // 지뢰 갯수 갱신
+                updateMineLeftCount(-1)
             } else if (cellButton.text.isNullOrEmpty() && cellButton.isSelected) {
-                // 이미 깃발이 설치된 셀에서 깃발을 다시 누르면 깃발 제거
                 cellButton.isSelected = false
                 cellButton.setBackgroundResource(R.drawable.cell_close)
-                updateMineLeftCount(1) // 지뢰 갯수 갱신
+                updateMineLeftCount(1)
                 visited[row][column] = false
             }
         }
     }
 
     private fun openAdjacentCells(row: Int, column: Int) {
-        // 재귀적으로 주변 셀을 열어주는 함수
         val queue = ArrayDeque<Pair<Int, Int>>()
 
         queue.add(Pair(row, column))
@@ -544,8 +511,8 @@ class gameActivity : AppCompatActivity() {
 
         while (queue.isNotEmpty()) {
             val (currentRow, currentColumn) = queue.removeFirst()
-            var adjacentFlagCount = 0 // 주변에 표시된 깃발 개수를 세기 위한 변수
-            var adjacentMineCount = 0 // 주변에 있는 지뢰 개수를 세기 위한 변수
+            var adjacentFlagCount = 0
+            var adjacentMineCount = 0
 
             for (i in 0 until 8) {
                 val newRow = currentRow + dx[i]
@@ -581,7 +548,6 @@ class gameActivity : AppCompatActivity() {
                                 }
                                 nonMineButtonClickedCount++
                                 if (nonMineButtonClickedCount == nonMineButtonCount) {
-                                    // 모든 지뢰가 아닌 버튼이 클릭되었을 때 게임 종료
                                     finishDialog()
                                 }
                                 newCellButton.text = if (count > 0) count.toString() else " "
@@ -615,7 +581,7 @@ class gameActivity : AppCompatActivity() {
         for (row in 0 until rowCount) {
             for (column in 0 until columnCount) {
                 minePositions[row][column] = false
-                visited[row][column] = false // 방문 배열 초기화
+                visited[row][column] = false
             }
         }
 
@@ -664,20 +630,18 @@ class gameActivity : AppCompatActivity() {
             RewardedAd.load(this, adUnitId, adRequest, object : RewardedAdLoadCallback() {
                 override fun onAdFailedToLoad(adError: LoadAdError) {
                     Toast.makeText(this@gameActivity, "Failed to road Ad", Toast.LENGTH_SHORT).show()
-                    onAdFailed() // 광고 로드 실패 시, onAdFailed 실행
+                    onAdFailed()
                 }
 
                 override fun onAdLoaded(rewardedAd: RewardedAd) {
                     rewardedAd.fullScreenContentCallback = object: FullScreenContentCallback() {
                         override fun onAdDismissedFullScreenContent() {
-                            onAdFailed() // 광고를 완전히 보지 않고 나올 경우, onAdFailed 실행
+                            onAdFailed()
                         }
                     }
 
-                    // 광고 로드 성공, 광고를 표시하고 시청 완료 시 onAdFinished 실행
                     rewardedAd.show(this@gameActivity, object : OnUserEarnedRewardListener {
                         override fun onUserEarnedReward(rewardItem: RewardItem) {
-                            // 광고 시청 완료, onAdFinished 실행
                             onAdFinished()
                         }
                     })
@@ -733,12 +697,10 @@ class gameActivity : AppCompatActivity() {
                 setKeepGameCalled(false)
             }
 
-            // 모든 지뢰 표시
             for (row in 0 until rowCount) {
                 for (column in 0 until columnCount) {
                     val cellButton = gridLayout.getChildAt(row * columnCount + column) as Button
                     if (minePositions[row][column]) {
-                        // 이미 깃발로 표시된 셀은 처리하지 않고 다음 셀로 넘어감
                         if (!cellButton.isSelected) {
                             val vectorDrawable = ResourcesCompat.getDrawable(resources, R.drawable.ic_mine, null)
                             val shapeDrawable = ResourcesCompat.getDrawable(resources, R.drawable.cell_close, null)
@@ -747,7 +709,6 @@ class gameActivity : AppCompatActivity() {
                             cellButton.background = layerDrawable
                         }
                     } else if (cellButton.isSelected) {
-                        // 깃발이 표시된 셀은 처리하지 않고 다음 셀로 넘어감
                         val vectorDrawable = ResourcesCompat.getDrawable(resources, R.drawable.ic_no_mine, null)
                         val shapeDrawable = ResourcesCompat.getDrawable(resources, R.drawable.cell_open, null)
                         val layerDrawable = LayerDrawable(arrayOf(shapeDrawable, vectorDrawable))
@@ -787,7 +748,6 @@ class gameActivity : AppCompatActivity() {
                             for (column in 0 until columnCount) {
                                 val cellButton = gridLayout.getChildAt(row * columnCount + column) as Button
                                 if (minePositions[row][column]) {
-                                    // 이미 깃발로 표시된 셀은 처리하지 않고 다음 셀로 넘어감
                                     if (cellButton.isSelected) {
                                         val vectorDrawable = ResourcesCompat.getDrawable(resources, R.drawable.ic_flag, null)
                                         val shapeDrawable = ResourcesCompat.getDrawable(resources, R.drawable.cell_open, null)
@@ -834,15 +794,12 @@ class gameActivity : AppCompatActivity() {
             viewMode("stop")
         }
 
-        // 게임 승리 시 지뢰 0으로 표시
         mineLeft.text = 0.toString()
 
-        // 모든 지뢰 표시
         for (row in 0 until rowCount) {
             for (column in 0 until columnCount) {
                 val cellButton = gridLayout.getChildAt(row * columnCount + column) as Button
                 if (minePositions[row][column]) {
-                    // 이미 깃발로 표시된 셀은 처리하지 않고 다음 셀로 넘어감
                     val vectorDrawable = ResourcesCompat.getDrawable(resources, R.drawable.ic_flag, null)
                     val shapeDrawable = ResourcesCompat.getDrawable(resources, R.drawable.cell_open, null)
                     val layerDrawable = LayerDrawable(arrayOf(shapeDrawable, vectorDrawable))
@@ -935,7 +892,6 @@ class gameActivity : AppCompatActivity() {
                 val cellButton = gridLayout.getChildAt(row * columnCount + column) as Button
                 cellFlagged[row][column] = cellButton.isSelected
                 if (!minePositions[row][column]) {
-                    // Only non-mine cells have a valid mine count nearby.
                     cellMineCountNearby[row][column] = getAdjacentMineCount(row, column)
                 }
             }
@@ -947,7 +903,7 @@ class gameActivity : AppCompatActivity() {
         val cellMineCountNearbyJson = Gson().toJson(cellMineCountNearby)
 
         val gameStatus = MineSweeperEntity(
-            id = 1, // Assuming only one game is saved at a time.
+            id = 1,
             difficulty = 1,
             elapsedTime = SystemClock.elapsedRealtime() - chronometer.base,
             mineCount = mineLeft.text.toString().toInt(),
@@ -969,7 +925,7 @@ class gameActivity : AppCompatActivity() {
 
     private suspend fun loadGameState(): Boolean {
         val gameStatus: MineSweeperEntity? =
-            gameStatusDao?.get(1) // Assuming only one game is saved at a time.
+            gameStatusDao?.get(1)
 
         isGameLoaded = true
 
@@ -983,7 +939,6 @@ class gameActivity : AppCompatActivity() {
             nonMineButtonClickedCount = gameStatus.nonMineButtonClickedCount
             nonMineButtonCount = gameStatus.nonMineButtonCount
 
-            // Restore the arrays from JSON strings.
             minePositions=Gson().fromJson(gameStatus.minePositions, Array<BooleanArray>::class.java)
             visited=Gson().fromJson(gameStatus.cellOpened, Array<BooleanArray>::class.java)
 
@@ -1009,9 +964,9 @@ class gameActivity : AppCompatActivity() {
                     }
                 }
             }
-            return true // 게임 상태가 성공적으로 로드되었음을 반환합니다.
+            return true
         }
-        return false // 저장된 게임 상태가 없음을 반환합니다.
+        return false
     }
 
     private suspend fun deleteAllGameStates() {
