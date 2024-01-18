@@ -31,7 +31,6 @@ abstract class AppDatabase : RoomDatabase() {
 
         private val MIGRATION_1_2 = object : Migration(1, 2) {
             override fun migrate(database: SupportSQLiteDatabase) {
-                // Create the new table
                 database.execSQL("""
             CREATE TABLE new_mine_sweeper_table (
                 id INTEGER PRIMARY KEY NOT NULL,
@@ -46,14 +45,13 @@ abstract class AppDatabase : RoomDatabase() {
                 cellMineCountNearby TEXT NOT NULL
             )
         """.trimIndent())
-                // Copy the data
                 database.execSQL("""
-            INSERT INTO new_mine_sweeper_table (id, difficulty, elapsedTime, MineCount, nonMineButtonClickedCount, nonMineButtonCount, minePositions, cellOpened, cellFlagged, cellMineCountNearby)
-            SELECT id, 1, elapsedTime, MineCount, nonMineButtonClickedCount, nonMineButtonCount, minePositions, cellOpened, cellFlagged, cellMineCountNearby FROM mine_sweeper_table
+            INSERT INTO new_mine_sweeper_table (id, difficulty, elapsedTime, MineCount, nonMineButtonClickedCount,
+            nonMineButtonCount, minePositions, cellOpened, cellFlagged, cellMineCountNearby)
+            SELECT id, 1, elapsedTime, MineCount, nonMineButtonClickedCount, nonMineButtonCount, minePositions, cellOpened,
+            cellFlagged, cellMineCountNearby FROM mine_sweeper_table
         """.trimIndent())
-                // Remove the old table
                 database.execSQL("DROP TABLE mine_sweeper_table")
-                // Change the table name to the correct one
                 database.execSQL("ALTER TABLE new_mine_sweeper_table RENAME TO mine_sweeper_table")
             }
         }
